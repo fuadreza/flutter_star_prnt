@@ -248,12 +248,12 @@ class PrintCommands {
     return byteData?.buffer.asUint8List();
   }
 
-  Future<void> appendTwoColumn({
+  void appendTwoColumn({
     required String leftText,
     required String rightText,
     int maxCharWidth = 32,
     int middleSpace = 2,
-  }) async {
+  }) {
     int leftLength = leftText.length;
     int rightLength = rightText.length;
     int colsMaxChar = ((maxCharWidth - middleSpace) / 2).floor();
@@ -292,13 +292,24 @@ class PrintCommands {
     }
   }
 
-  Future<void> appendAlignment({
+  /// Print text with alignment with default alignment to left
+  void appendAlignment({
     required String text,
     StarAlignmentPosition alignment = StarAlignmentPosition.Left,
-  }) async {
+  }) {
     Map<String, dynamic> command = {
       "appendAlignment": alignment.text,
       "data": text + '\n',
+    };
+    this._commands.add(command);
+  }
+
+  /// Print empty line feed with default 1 line
+  void appendLineFeed({
+    int lineCount = 1,
+  }) {
+    Map<String, dynamic> command = {
+      "appendLineFeed": lineCount,
     };
     this._commands.add(command);
   }
