@@ -277,14 +277,29 @@ class PrintCommands {
     } else {
       rows.add(leftText.padRight(colsMaxChar) +
           " ".padRight(middleSpace) +
-          rightText);
+          rightText.padLeft(colsMaxChar));
     }
 
     for (int i = 0; i < rows.length; i++) {
       Map<String, dynamic> command = {
         "append": rows[i],
       };
+      //Add new line on last row
+      if (i == rows.length - 1) {
+        command['append'] += '\n';
+      }
       this._commands.add(command);
     }
+  }
+
+  Future<void> appendAlignment({
+    required String text,
+    StarAlignmentPosition alignment = StarAlignmentPosition.Left,
+  }) async {
+    Map<String, dynamic> command = {
+      "appendAlignment": alignment.text,
+      "data": text + '\n',
+    };
+    this._commands.add(command);
   }
 }
