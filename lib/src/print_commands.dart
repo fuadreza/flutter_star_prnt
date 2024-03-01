@@ -1,9 +1,11 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_star_prnt/src/enums.dart';
+import 'package:flutter_star_prnt/src/string_extension.dart';
 
 /// Class to hold print commands and functions to add commands to it
 class PrintCommands {
@@ -244,5 +246,45 @@ class PrintCommands {
         await image.toByteData(format: ui.ImageByteFormat.png);
 
     return byteData?.buffer.asUint8List();
+  }
+
+  Future<void> appendTwoColumn({
+    required String leftText,
+    required String rightText,
+    int maxCharWidth = 32,
+    int middleSpace = 2,
+  }) async {
+    int leftLength = leftText.length;
+    int rightLength = rightText.length;
+    int colsMaxChar = ((maxCharWidth - middleSpace) / 2).floor();
+
+    final List<String> rows = [];
+
+    if (leftLength > colsMaxChar || rightLength > colsMaxChar) {
+      //Split the text by space character so that the text will not be cut off
+      List<String> leftTextList = leftText.stringSplitter(colsMaxChar);
+      List<String> rightTextList = rightText.stringSplitter(colsMaxChar);
+
+      int largest = max(leftTextList.length, rightTextList.length);
+
+      for (int i = 0; i < largest; i++) {
+        String left = leftTextList.length > i ? leftTextList[i] : "";
+        String right = rightTextList.length > i ? rightTextList[i] : "";
+        rows.add(left.padRight(colsMaxChar) +
+            " ".padRight(middleSpace) +
+            right.padLeft(colsMaxChar));
+      }
+    } else {
+      rows.add(leftText.padRight(colsMaxChar) +
+          " ".padRight(middleSpace) +
+          rightText);
+    }
+
+    for (int i = 0; i < rows.length; i++) {
+      Map<String, dynamic> command = {
+        "append": rows[i],
+      };
+      this._commands.add(command);
+    }
   }
 }
