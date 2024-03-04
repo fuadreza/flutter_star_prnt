@@ -573,7 +573,35 @@ public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
             }
         } catch (e: Exception) {
           Log.e("FlutterStarPrnt", "appendbitmapbyteArray failed", e)
-        }}
+        }} else if (it.containsKey("appendQrCode")) {
+          val qrCodeModel: ICommandBuilder.QrCodeModel = if (it.containsKey("QrCodeModel")) getQrCodeModel(it.get("QrCodeModel").toString()) else getQrCodeModel("No2")
+          val qrCodeLevel: ICommandBuilder.QrCodeLevel = if (it.containsKey("QrCodeLevel")) getQrCodeLevel(it.get("QrCodeLevel").toString()) else getQrCodeLevel("H")
+          val cell: Int = if (it.containsKey("cell")) (it.get("cell").toString()).toInt() else 4
+          if (it.containsKey("absolutePosition")) {
+              builder.appendQrCodeWithAbsolutePosition(
+                  it.get("appendQrCode").toString().toByteArray(encoding),
+                  qrCodeModel,
+                  qrCodeLevel,
+                  cell,
+                  it.get("absolutePosition") as Int
+              )
+          } else if (it.containsKey("alignment")) {
+              builder.appendQrCodeWithAlignment(
+                  it.get("appendQrCode").toString().toByteArray(encoding),
+                  qrCodeModel,
+                  qrCodeLevel,
+                  cell,
+                  getAlignment(it.get("alignment").toString())
+              )
+          } else {
+              builder.appendQrCode(
+                  it.get("appendQrCode").toString().toByteArray(encoding),
+                  qrCodeModel,
+                  qrCodeLevel,
+                  cell
+              )
+          }
+      }
     }
   }
 
@@ -965,5 +993,18 @@ public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
     return Pair(retVal,json)
   }
 
+    private fun getQrCodeLevel(qrCodeLevel: String): ICommandBuilder.QrCodeLevel {
+        if (qrCodeLevel.equals("L")) return ICommandBuilder.QrCodeLevel.L
+        else if (qrCodeLevel.equals("M")) return ICommandBuilder.QrCodeLevel.M
+        else if (qrCodeLevel.equals("Q")) return ICommandBuilder.QrCodeLevel.Q
+        else if (qrCodeLevel.equals("H")) return ICommandBuilder.QrCodeLevel.H
+        else return ICommandBuilder.QrCodeLevel.L
+    }
+
+    private fun getQrCodeModel(qrCodeModel: String): ICommandBuilder.QrCodeModel {
+        if (qrCodeModel.equals("No1")) return ICommandBuilder.QrCodeModel.No1
+        else if (qrCodeModel.equals("No2")) return ICommandBuilder.QrCodeModel.No2
+        else return ICommandBuilder.QrCodeModel.No1
+    }
 
 }

@@ -52,8 +52,7 @@ class PrintCommands {
     command['bothScale'] = bothScale;
     command['diffusion'] = diffusion;
     command['width'] = width;
-    if (absolutePosition != null)
-      command['absolutePosition'] = absolutePosition;
+    if (absolutePosition != null) command['absolutePosition'] = absolutePosition;
     if (alignment != null) command['alignment'] = alignment.text;
     if (rotation != null) command['rotation'] = rotation.text;
 
@@ -80,8 +79,7 @@ class PrintCommands {
     command['bothScale'] = bothScale;
     command['diffusion'] = diffusion;
     command['width'] = width;
-    if (absolutePosition != null)
-      command['absolutePosition'] = absolutePosition;
+    if (absolutePosition != null) command['absolutePosition'] = absolutePosition;
     if (alignment != null) command['alignment'] = alignment.text;
     if (rotation != null) command['rotation'] = rotation.text;
 
@@ -158,8 +156,7 @@ class PrintCommands {
     command['diffusion'] = diffusion;
     if (fontSize != null) command['fontSize'] = fontSize;
     if (width != null) command['width'] = width;
-    if (absolutePosition != null)
-      command['absolutePosition'] = absolutePosition;
+    if (absolutePosition != null) command['absolutePosition'] = absolutePosition;
     if (alignment != null) command['alignment'] = alignment.text;
     if (rotation != null) command['rotation'] = rotation.text;
 
@@ -190,15 +187,11 @@ class PrintCommands {
     TextDirection textDirection = TextDirection.ltr,
   }) async {
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
-    logicalSize ??=
-        View.of(context).physicalSize / View.of(context).devicePixelRatio;
+    logicalSize ??= View.of(context).physicalSize / View.of(context).devicePixelRatio;
     imageSize ??= View.of(context).physicalSize;
     assert(logicalSize.aspectRatio == imageSize.aspectRatio);
     final RenderView renderView = RenderView(
-      view: WidgetsFlutterBinding.ensureInitialized()
-          .platformDispatcher
-          .views
-          .first,
+      view: WidgetsFlutterBinding.ensureInitialized().platformDispatcher.views.first,
       child: RenderPositionedBox(
         alignment: Alignment.center,
         child: repaintBoundary,
@@ -215,8 +208,7 @@ class PrintCommands {
     pipelineOwner.rootNode = renderView;
     renderView.prepareInitialFrame();
 
-    final RenderObjectToWidgetElement<RenderBox> rootElement =
-        RenderObjectToWidgetAdapter<RenderBox>(
+    final RenderObjectToWidgetElement<RenderBox> rootElement = RenderObjectToWidgetAdapter<RenderBox>(
       container: repaintBoundary,
       child: Directionality(
         textDirection: textDirection,
@@ -242,8 +234,7 @@ class PrintCommands {
     final ui.Image image = await repaintBoundary.toImage(
       pixelRatio: imageSize.width / logicalSize.width,
     );
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
     return byteData?.buffer.asUint8List();
   }
@@ -270,14 +261,10 @@ class PrintCommands {
       for (int i = 0; i < largest; i++) {
         String left = leftTextList.length > i ? leftTextList[i] : "";
         String right = rightTextList.length > i ? rightTextList[i] : "";
-        rows.add(left.padRight(colsMaxChar) +
-            " ".padRight(middleSpace) +
-            right.padLeft(colsMaxChar));
+        rows.add(left.padRight(colsMaxChar) + " ".padRight(middleSpace) + right.padLeft(colsMaxChar));
       }
     } else {
-      rows.add(leftText.padRight(colsMaxChar) +
-          " ".padRight(middleSpace) +
-          rightText.padLeft(colsMaxChar));
+      rows.add(leftText.padRight(colsMaxChar) + " ".padRight(middleSpace) + rightText.padLeft(colsMaxChar));
     }
 
     for (int i = 0; i < rows.length; i++) {
@@ -310,6 +297,24 @@ class PrintCommands {
   }) {
     Map<String, dynamic> command = {
       "appendLineFeed": lineCount,
+    };
+    this._commands.add(command);
+  }
+
+  // Print QR code
+  void appendQrCode({
+    required String data,
+    StarQrCodeModel model = StarQrCodeModel.No2,
+    int cell = 6,
+    StarQrCodeLevel correctionLevel = StarQrCodeLevel.L,
+    StarAlignmentPosition alignment = StarAlignmentPosition.Left,
+  }) {
+    Map<String, dynamic> command = {
+      "appendQrCode": data,
+      "QrCodeModel": model.text,
+      "cell": cell,
+      "QrCodeLevel": correctionLevel.text,
+      'alignment': alignment.text,
     };
     this._commands.add(command);
   }
