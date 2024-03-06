@@ -254,6 +254,10 @@ public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
     val emulation: String = call.argument<String>("emulation") as String
     val printCommands: ArrayList<Map<String, Any>> =
         call.argument<ArrayList<Map<String, Any>>>("printCommands") as ArrayList<Map<String, Any>>
+    val fastPrint: Boolean = call.argument<Boolean>("fastPrint") as Boolean
+    val useStartEndBlock: Boolean = call.argument<Boolean>("useStartEndBlock") as Boolean
+    val fastPrintWithBlock: Boolean = call.argument<Boolean>("fastPrintWithBlock") as Boolean
+
     if (printCommands.size < 1) {
       val (_,jsn) = getIsAvailableForPrintAndStatusMap(null,null);
       val json: MutableMap<String, Any?> = jsn.toMutableMap()
@@ -266,12 +270,25 @@ public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
     builder.beginDocument()
     appendCommands(builder, printCommands, applicationContext)
     builder.endDocument()
-    sendCommand(
+    if (fastPrint) {
+      sendCommandSpeedOptimize(
         portName,
         getPortSettingsOption(emulation),
         builder.getCommands(),
         applicationContext,
-        result)
+        useStartEndBlock,
+        fastPrintWithBlock,
+        result
+      )
+    } else {
+      sendCommand(
+        portName,
+        getPortSettingsOption(emulation),
+        builder.getCommands(),
+        applicationContext,
+        result
+      )
+    }
   }
 
   private fun getPortDiscovery(@NonNull interfaceName: String): MutableList<Map<String, String>> {
