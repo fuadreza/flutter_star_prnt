@@ -189,15 +189,17 @@ class PrintCommands {
     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
     logicalSize ??= View.of(context).physicalSize / View.of(context).devicePixelRatio;
     imageSize ??= View.of(context).physicalSize;
+    final firstView = WidgetsFlutterBinding.ensureInitialized().platformDispatcher.views.first;
     assert(logicalSize.aspectRatio == imageSize.aspectRatio);
     final RenderView renderView = RenderView(
-      view: WidgetsFlutterBinding.ensureInitialized().platformDispatcher.views.first,
+      view: firstView,
       child: RenderPositionedBox(
         alignment: Alignment.center,
         child: repaintBoundary,
       ),
       configuration: ViewConfiguration(
-        size: logicalSize,
+        physicalConstraints: BoxConstraints.tight(logicalSize) * firstView.devicePixelRatio,
+        logicalConstraints: BoxConstraints.tight(logicalSize),
         devicePixelRatio: 1.0,
       ),
     );
