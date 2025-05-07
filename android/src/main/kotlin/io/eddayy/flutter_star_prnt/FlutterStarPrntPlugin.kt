@@ -28,7 +28,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.Console
 import java.nio.charset.Charset
 import java.nio.charset.UnsupportedCharsetException
@@ -57,28 +56,30 @@ object PrinterSettingConstant {
 }
 
 /** FlutterStarPrntPlugin */
-public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
+public class FlutterStarPrntPlugin : FlutterPlugin {
   protected var starIoExtManager: StarIoExtManager? = null
-  companion object {
-    protected lateinit var applicationContext: Context
+  private lateinit var methodChannel: MethodChannel
 
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "flutter_star_prnt")
-      channel.setMethodCallHandler(FlutterStarPrntPlugin())
-      FlutterStarPrntPlugin.setupPlugin(registrar.messenger(), registrar.context())
-    }
-    @JvmStatic
-    fun setupPlugin(messenger: BinaryMessenger, context: Context) {
-      try {
-        applicationContext = context.getApplicationContext()
-        val channel = MethodChannel(messenger, "flutter_star_prnt")
-        channel.setMethodCallHandler(FlutterStarPrntPlugin())
-      } catch (e: Exception) {
-          Log.e("FlutterStarPrnt", "Registration failed", e)
-      }
-    }
-  }
+//  companion object {
+//    protected lateinit var applicationContext: Context
+//
+//    @JvmStatic
+//    fun registerWith(registrar: Registrar) {
+//      val channel = MethodChannel(registrar.messenger(), "flutter_star_prnt")
+//      channel.setMethodCallHandler(FlutterStarPrntPlugin())
+//      FlutterStarPrntPlugin.setupPlugin(registrar.messenger(), registrar.context())
+//    }
+//    @JvmStatic
+//    fun setupPlugin(messenger: BinaryMessenger, context: Context) {
+//      try {
+//        applicationContext = context.getApplicationContext()
+//        val channel = MethodChannel(messenger, "flutter_star_prnt")
+//        channel.setMethodCallHandler(FlutterStarPrntPlugin())
+//      } catch (e: Exception) {
+//          Log.e("FlutterStarPrnt", "Registration failed", e)
+//      }
+//    }
+//  }
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_star_prnt")
     channel.setMethodCallHandler(FlutterStarPrntPlugin())
