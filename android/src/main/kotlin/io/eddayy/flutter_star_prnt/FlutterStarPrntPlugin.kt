@@ -56,45 +56,27 @@ object PrinterSettingConstant {
 }
 
 /** FlutterStarPrntPlugin */
-public class FlutterStarPrntPlugin : FlutterPlugin {
+public class FlutterStarPrntPlugin : FlutterPlugin, MethodCallHandler {
   protected var starIoExtManager: StarIoExtManager? = null
-  private lateinit var methodChannel: MethodChannel
 
-//  companion object {
-//    protected lateinit var applicationContext: Context
-//
-//    @JvmStatic
-//    fun registerWith(registrar: Registrar) {
-//      val channel = MethodChannel(registrar.messenger(), "flutter_star_prnt")
-//      channel.setMethodCallHandler(FlutterStarPrntPlugin())
-//      FlutterStarPrntPlugin.setupPlugin(registrar.messenger(), registrar.context())
-//    }
-//    @JvmStatic
-//    fun setupPlugin(messenger: BinaryMessenger, context: Context) {
-//      try {
-//        applicationContext = context.getApplicationContext()
-//        val channel = MethodChannel(messenger, "flutter_star_prnt")
-//        channel.setMethodCallHandler(FlutterStarPrntPlugin())
-//      } catch (e: Exception) {
-//          Log.e("FlutterStarPrnt", "Registration failed", e)
-//      }
-//    }
-//  }
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_star_prnt")
-    channel.setMethodCallHandler(FlutterStarPrntPlugin())
-    setupPlugin(flutterPluginBinding.getFlutterEngine().getDartExecutor(), flutterPluginBinding.getApplicationContext())
+  companion object {
+    protected lateinit var applicationContext: Context
   }
+
+  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    applicationContext = flutterPluginBinding.applicationContext
+    val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_star_prnt")
+    channel.setMethodCallHandler(this)
+  }
+
+  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {}
+
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull rawResult: Result) {
     val result: MethodResultWrapper = MethodResultWrapper(rawResult)
     Thread(MethodRunner(call, result)).start()
   }
 
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {}
-  inner class MethodRunner(call: MethodCall, result: Result) : Runnable {
-    private val call: MethodCall = call
-    private val result: Result = result
-
+  inner class MethodRunner(private val call: MethodCall, private val result: Result) : Runnable {
     override fun run() {
       when (call.method) {
         "portDiscovery" -> {
@@ -110,35 +92,23 @@ public class FlutterStarPrntPlugin : FlutterPlugin {
       }
     }
   }
-  class MethodResultWrapper(methodResult: Result) : Result {
 
-    private val methodResult: Result = methodResult
+  class MethodResultWrapper(private val methodResult: Result) : Result {
     private val handler: Handler = Handler(Looper.getMainLooper())
 
-    public override fun success(result: Any?) {
-        handler.post(object : Runnable {
-          override fun run() {
-            methodResult.success(result)
-          }
-        })
+    override fun success(result: Any?) {
+        handler.post { methodResult.success(result) }
     }
 
-    public override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-        handler.post(object : Runnable {
-          override fun run() {
-            methodResult.error(errorCode, errorMessage, errorDetails)
-          }
-        })
+    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+        handler.post { methodResult.error(errorCode, errorMessage, errorDetails) }
     }
 
-    public override fun notImplemented() {
-        handler.post(object : Runnable {
-          override fun run() {
-            methodResult.notImplemented()
-          }
-        })
+    override fun notImplemented() {
+        handler.post { methodResult.notImplemented() }
     }
   }
+
   public fun portDiscovery(@NonNull call: MethodCall, @NonNull result: Result) {
     val strInterface: String = call.argument<String>("type") as String
     val response: MutableList<Map<String, String>>
